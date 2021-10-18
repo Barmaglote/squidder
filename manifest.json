@@ -1,12 +1,19 @@
 {
-  "manifest_version": 2,
-  "name": "Squidder for RKN Russia",
+  "manifest_version": 3,
+  "name": "Squidder. Foreign agent bar removal",
+  "description": "Automatic removal of mandatory messages from Federal Service for Supervision in the Sphere of Telecom, Information Technologies and Mass Communications (RKN).", 
   "version": "1.0.0",
-  "content_scripts": [
-  {
-    "matches": [
-      "<all_urls>"
-    ],
-    "js": ["content.js"]
-  }
+  "action": {},
+   "content_scripts": [
+   {
+     "matches": ["http://*/*","https://*/*"],
+     "css": ["/css/squidder.css"],
+     "js": ["/libs/jquery-3.6.0.min.js", "/js/content.js", "/js/service.js" ],
+     "run_at": "document_end"
+   }
+  ],
+  "permissions": [
+    "activeTab",
+    "storage"
+  ]
 }
