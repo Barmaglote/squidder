@@ -1,8 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "Squidder. Foreign agent bar removal",
-  "description": "Automatic removal of mandatory messages from Federal Service for Supervision in the Sphere of Telecom, Information Technologies and Mass Communications (RKN).", 
+  "name": "Squidder",
+  "description": "Удаление плашки Роскомнадзора об иностранных агентах.", 
   "version": "1.0.0",
+     "icons": {
+            "16": "images/logo_16.png",
+            "32": "images/logo_32.png",
+            "48": "images/logo_48.png",
+            "64": "images/logo_64.png",
+            "128": "images/logo_128.png"
+    }, 
   "action": {},
    "content_scripts": [
    {
@@ -11,9 +18,5 @@
      "js": ["/libs/jquery-3.6.0.min.js", "/js/content.js", "/js/service.js" ],
      "run_at": "document_end"
    }
-  ],
-  "permissions": [
-    "activeTab",
-    "storage"
   ]
 }
