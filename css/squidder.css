@@ -1,6 +1,67 @@
-.squidder-substituter {
-    font-size: x-small;
-    color: red;
-    padding: 0;
-    margin: 0;
+.squidder-btn-group {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle; 
+}
+
+.squidder-btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.squidder-btn:hover,
+.squidder-btn:focus,
+.squidder-btn:active,
+.squidder-btn.active {
+    z-index: 1;
+}
+
+.squidder-btn-group>.squidder-btn-group:not(:first-child)>.squidder-btn,
+.squidder-btn-group>.squidder-btn:nth-child(n+3),
+.squidder-btn-group>:not(.btn-check)+.squidder-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.squidder-btn-group>.squidder-btn-group:not(:first-child),
+.squidder-btn-group>.squidder-btn:not(:first-child) {
+    margin-left: -1px;
+}
+
+.squidder-btn-group-vertical>.squidder-btn,
+.squidder-btn-group>.squidder-btn {
+    position: relative;
+    flex: 1 1 auto;
+}
+
+.squidder-btn-primary {
+    color: #fff !important;
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.squidder-btn-secondary {
+    color: #fff !important;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+.squidder-btn {
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    padding: .175rem .25rem;
+    font-size: 1rem;
+    border-radius: .25rem;
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }

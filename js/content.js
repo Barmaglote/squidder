@@ -4,14 +4,28 @@ function App() {
   this.originBlockType = "full"; // full | part
   this.newBlockType = "part"; // full | part
   this.inoagents = this.GetAgents();
-  this.startingTemplates = ["АННОЕ", "анное"];
-  this.rknMsg =
-    /.*Данноесообщениематериалсозданоиилираспространеноиностраннымсредствоммассовойинформациивыполняющимфункциииностранногоагентаиилироссийскимюридическимлицомвыполняющимфункциииностранногоагента.*/;
-  //"Данное сообщение (материал) создано и (или) распространено иностранным средством массовой информации, выполняющим функции иностранного агента, и (или) российским юридическим лицом, выполняющим функции иностранного агента";
-  this.freedomMsg = '<span class="squidder-substituter">Иностранные агенты - это наши друзья</span>';
+  this.templates = ["АННОЕ", "анное", "агента", "АГЕНТ", "ИНОСТРАН", "иностран"];
+  this.filters = [
+    /(данное.*иностранного.*агента[\.]?)/isu,
+    /(НКО.*иностранного.*агента)/isu,
+    /(СМИ.*иностранного.*агента)/isu,
+    /(незарегистрированно.*объединение.*признанное.*иноагентом)/isu,
+    /(СМИ.*признанное.*иностранным[\s]?агентом)/isu,
+    /(физлицо.*признанное.*иностранным[\s]?агентом)/isu,
+  ];
+
+  this.freedomMsg =
+    '<div class="squidder-btn-group" role="group" aria-label="Basic example">\
+      <button type="button" class="squidder-btn squidder-btn-primary">\
+        Наш друг\
+      </button>\
+      <button type="button" class="squidder-btn squidder-btn-primary squidder-close">\
+        <span aria-hidden="true">&times;</span>\
+      </button>\
+    </div>';
 }
 
-App.prototype.CleanFromRKNText = function () {
+App.prototype.ClearByList = function () {
   var self = this;
 
   var isApplied = false;
@@ -36,32 +50,34 @@ App.prototype.CleanFromRKNText = function () {
       });
   }
 
-  if (isApplied) return;
+  return isApplied;
+};
 
-  // Basic approach
-  this.startingTemplates.forEach(function (template) {
-    self.body.find(":сontains(" + template + "):last").each(function () {
-      var obj = $(this);
-      var text = $(this).text();
-      var text = text.replace(/[^а-яА-Яё]/g, "");
-      console.log(text);
-      if (self.rknMsg.test(text)) {
-        self.HideRKNBar(obj);
+App.prototype.ClearByKeyword = function (keyword) {
+  var self = this;
+
+  suspicious = $("body :contains(" + keyword + "):last").each(function () {
+    var obj = $(this);
+    var text = obj.text();
+    var result = false;
+    self.filters.forEach(function (item) {
+      if (item.test(text)) {
+        result = true;
       }
     });
   });
-};
 
-App.prototype.HideRKNBar = function (item) {
-  if (item == null) {
-    return;
-  }
-
-  try {
-    item.html(this.newBlockType == "full" ? "" : this.freedomMsg);
-  } catch (e) {
-    console.log(e);
-  }
+  suspicious.each(function () {
+    var obj = $(this);
+    var text = obj.text();
+    self.filters.forEach(function (item) {
+      if (item.test(text)) {
+        try {
+          obj.html(text.replace(item, self.newBlockType == "full" ? "" : self.freedomMsg));
+        } catch (e) {}
+      }
+    });
+  });
 };
 
 App.prototype.GetAgents = function () {
@@ -80,7 +96,20 @@ App.prototype.GetAgents = function () {
   return agents;
 };
 
-window.onload = function () {
-  var app = app || new App();
-  app.CleanFromRKNText();
+App.prototype.SetHandlers = function () {
+  $("body .squidder-close")
+    .off("click")
+    .on("click", function () {
+      $(this).parent(".squidder-btn-group").remove();
+    });
 };
+
+$(function () {
+  var app = app || new App();
+
+  app.ClearByList();
+  app.templates.forEach((item) => {
+    app.ClearByKeyword(item);
+  });
+  app.SetHandlers();
+});
