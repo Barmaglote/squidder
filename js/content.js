@@ -8,6 +8,7 @@ function App() {
   this.inoagents = this.GetAgents();
   this.templates = ["АННОЕ", "анное", "агента", "АГЕНТ", "ИНОСТРАН", "иностран"];
   this.filters = [
+    /(данное[\s\S]*?юридическим[\s\S]*?иностранного[\s\S]*?агента[\.]?)/iu,
     /(данное.*иностранного.*агента[\.]?)/isu,
     /(НКО.*иностранного.*агента[\.]?)/isu,
     /(СМИ.*иностранного.*агента[\.]?)/isu,
@@ -46,52 +47,38 @@ App.prototype.ClearByList = function () {
 
   // Custom approach
   if (this.inoagents != null) {
-    this.inoagents
-      .filter(function (item) {
-        return item.urls?.indexOf(location.hostname) > -1;
-      })
-      .forEach(function (item) {
-        if (self.originBlockType == "full") {
-          item.selectorsFull.forEach((elem) => {
-            self.body.find(elem).remove();
-          });
-        } else {
-          item.selectorsPartial.forEach((elem) => {
-            self.HideRKNBar(self.body.find(elem));
-          });
-        }
-        isApplied = true;
-      });
+    return false;
   }
+
+  this.inoagents
+    .filter(function (item) {
+      return item.urls?.indexOf(location.hostname) > -1;
+    })
+    .forEach(function (item) {
+      if (self.originBlockType == "full") {
+        item.selectorsFull.forEach((elem) => {
+          self.body.find(elem).remove();
+        });
+      } else {
+        item.selectorsPartial.forEach((elem) => {
+          self.HideRKNBar(self.body.find(elem));
+        });
+      }
+      isApplied = true;
+    });
 
   return isApplied;
 };
 
 App.prototype.ClearByKeyword = function (keyword) {
   var self = this;
+  let suspicious = getSuspects(initialSuspects(keyword), this.filters);
 
-  suspicious = $("body :contains(" + keyword + "):last").each(function () {
-    var obj = $(this);
-    var text = obj.text();
-    var result = false;
-    self.filters.forEach(function (item) {
-      if (item.test(text)) {
-        result = true;
-      }
-    });
-  });
+  if (suspicious == null || suspicious.length == 0) {
+    return;
+  }
 
-  suspicious.each(function () {
-    var obj = $(this);
-    var text = obj.text();
-    self.filters.forEach(function (item) {
-      if (item.test(text)) {
-        try {
-          obj.html(text.replace(item, self.newBlockType == "full" ? "" : self.freedomMsg));
-        } catch (e) {}
-      }
-    });
-  });
+  updateSuspects(getNewMsg(this.newBlockType, this.freedomMsg), this.filters.slice())(suspicious);
 };
 
 App.prototype.GetAgents = function () {
@@ -118,7 +105,7 @@ App.prototype.GetAgents = function () {
 App.prototype.SetHandlers = function () {
   $("body .squidder-close")
     .off("click")
-    .on("click", function () {
+    .on("click", () => {
       $(this).parent(".squidder-btn-group").remove();
     });
 };
@@ -133,3 +120,33 @@ $(document).ready(function () {
   });
   app.SetHandlers();
 });
+
+const matchToPattern = (text) => (item) => item.test(text);
+const presentsInTemplates = (text) => (item) => item.test(text);
+const filter = (checker) => (list) => list.filter(checker);
+const filterByPattern = (input, text) => filter(matchToPattern(text))(input);
+const initialSuspects = (keyword) => $("body :contains(" + keyword + "):last");
+const isSuspect = (filters, text) => filterByPattern(filters, text).length > 0;
+
+const getSuspects = (list, filters) =>
+  list.each((item) => {
+    let text = $(item).text();
+    return isSuspect(filters, text);
+  });
+
+const updateSuspects = (msg, filters) => (list) =>
+  list.each(function () {
+    var obj = $(this);
+    let text = obj.text();
+    filters.forEach((item) => {
+      if (!matchToPattern(text)(item)) {
+        return;
+      }
+
+      try {
+        obj.html(text.replace(item, msg));
+      } catch (e) {}
+    });
+  });
+
+const getNewMsg = (newBlockType, freedomMsg) => (newBlockType == "full" ? "" : freedomMsg);
