@@ -6,18 +6,15 @@ function App() {
   this.originBlockType = "full"; // full | part
   this.newBlockType = "part"; // full | part
   this.inoagents = this.GetAgents();
-  this.templates = ["АННОЕ", "анное", "агента", "АГЕНТ", "ИНОСТРАН", "иностран"];
+  this.templates = ["агент", "АГЕНТ", "анное", "АННОЕ"];
   this.filters = [
-    /(данное[\s\S]*?юридическим[\s\S]*?иностранного[\s\S]*?агента[\.]?)/iu,
-    /(данное.*иностранного.*агента[\.]?)/isu,
-    /(НКО.*иностранного.*агента[\.]?)/isu,
-    /(СМИ.*иностранного.*агента[\.]?)/isu,
-    /(незарегистрированно.*объединение.*признанное.*иноагентом[\.]?)/isu,
-    /(СМИ.*признанное.*иностранным[\s]?агентом[\.]?)/isu,
-    /(физлицо.*признанное.*иностранным[\s]?агентом[\.]?)/isu,
-    /(ДАННОЕ.*ИНОСТРАННОГО.*АГЕНТА[\.]?)/is,
-    /(Данное[\s\S]*?иностранного[\s\S]*?агента[\s\S]*?иностранного[\s\S]*?агента[\.]?)/giu,
-    /(незарегистрированное[\s\S]*?общественное[\s\S]*?объединение,[\s\S]*?признанное[\s\S]*?иноагентом)/giu,
+    /(НКО[\s\S]*?иностранного[\s\S]*?агента[\.]?)/isu,
+    /(СМИ[\s\S]*?иностранного[\s\S]*?агента[\.]?)/isu,
+    /(СМИ.*признанное[\s\S]*?иностранным[\s\S]*?агентом[\.]?)/isu,
+    /([Ф|ф]излицо[\s\S]*?признанное[\s\S]*?иностранным[\s\S]*?агентом[\.]?)/isu,
+    /(ДАННОЕ[\s\S]*?ИНОСТРАННОГО[\s\S]*?ИНОСТРАННОГО[\s\S]*?АГЕНТА[\.]?)/is,
+    /([Д|д]анное[\s\S]*?иностранного[\s\S]*?агента[\s\S]*?иностранного[\s\S]*?агента[\.]?)/giu,
+    /([H|н]езарегистрированное[\s\S]*?объединение,[\s\S]*?признанное[\s\S]*?иноагентом)/giu,
   ];
 
   this.freedomMsg =
@@ -36,7 +33,7 @@ App.prototype.CutContainer = function () {
   var self = this;
   $(this.cutContainer).each(function () {
     var obj = $(this);
-    obj.html(self.newBlockType == "full" ? "" : self.freedomMsg);
+    obj.html(getNewMsg(self.newBlockType, self.freedomMsg));
   });
 };
 
@@ -71,7 +68,6 @@ App.prototype.ClearByList = function () {
 };
 
 App.prototype.ClearByKeyword = function (keyword) {
-  var self = this;
   let suspicious = getSuspects(initialSuspects(keyword), this.filters);
 
   if (suspicious == null || suspicious.length == 0) {
@@ -103,10 +99,10 @@ App.prototype.GetAgents = function () {
 };
 
 App.prototype.SetHandlers = function () {
-  $("body .squidder-close")
+  $(".squidder-close")
     .off("click")
-    .on("click", () => {
-      $(this).parent(".squidder-btn-group").remove();
+    .on("click", (item) => {
+      $(item.currentTarget).parents(".squidder-btn-group").remove();
     });
 };
 
@@ -119,10 +115,18 @@ $(document).ready(function () {
     app.ClearByKeyword(item);
   });
   app.SetHandlers();
+
+  document.body.onload = function () {
+    app.CutContainer();
+    app.ClearByList();
+    app.templates.forEach((item) => {
+      app.ClearByKeyword(item);
+    });
+    app.SetHandlers();
+  };
 });
 
 const matchToPattern = (text) => (item) => item.test(text);
-const presentsInTemplates = (text) => (item) => item.test(text);
 const filter = (checker) => (list) => list.filter(checker);
 const filterByPattern = (input, text) => filter(matchToPattern(text))(input);
 const initialSuspects = (keyword) => $("body :contains(" + keyword + "):last");
