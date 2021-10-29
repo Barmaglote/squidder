@@ -109,23 +109,21 @@ App.prototype.SetHandlers = function () {
 $(document).ready(function () {
   var app = app || new App();
 
+  processPage(app);
+
+  document.body.onload = function () {
+    processPage(app);
+  };
+});
+
+const processPage = (app) => {
   app.CutContainer();
   app.ClearByList();
   app.templates.forEach((item) => {
     app.ClearByKeyword(item);
   });
   app.SetHandlers();
-
-  document.body.onload = function () {
-    app.CutContainer();
-    app.ClearByList();
-    app.templates.forEach((item) => {
-      app.ClearByKeyword(item);
-    });
-    app.SetHandlers();
-  };
-});
-
+};
 const matchToPattern = (text) => (item) => item.test(text);
 const filter = (checker) => (list) => list.filter(checker);
 const filterByPattern = (input, text) => filter(matchToPattern(text))(input);
