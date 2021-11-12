@@ -74,7 +74,7 @@ App.prototype.ClearByKeyword = function (keyword) {
     return;
   }
 
-  updateSuspects(getNewMsg(this.newBlockType, this.freedomMsg), this.filters.slice())(suspicious);
+  updateSuspects(getNewMsg(this.newBlockType, this.freedomMsg), this.filters.slice())(suspicious, this);
 };
 
 App.prototype.GetAgents = function () {
@@ -106,6 +106,26 @@ App.prototype.SetHandlers = function () {
     });
 };
 
+App.prototype.IncrementCounter = async function() {
+  await (new Promise((resolve, reject) => {
+    chrome.storage.local.get("squidder", async function(result){
+      let current = result.squidder?.total || 0;
+      alert(current);
+      resolve(() => {
+        new Promise((resolve, reject) => { 
+          chrome.storage.local.set({ "squidder": {"total": ++current} }, function(){
+            alert("Zhdite menja, urody!");
+            resolve();
+          });
+        });
+      });
+    });
+  }));
+
+  alert("Counted");
+  return;
+}
+
 $(document).ready(function () {
   var app = app || new App();
 
@@ -124,6 +144,7 @@ const processPage = (app) => {
   });
   app.SetHandlers();
 };
+
 const matchToPattern = (text) => (item) => item.test(text);
 const filter = (checker) => (list) => list.filter(checker);
 const filterByPattern = (input, text) => filter(matchToPattern(text))(input);
@@ -136,7 +157,7 @@ const getSuspects = (list, filters) =>
     return isSuspect(filters, text);
   });
 
-const updateSuspects = (msg, filters) => (list) =>
+const updateSuspects = (msg, filters) => (list, app) =>
   list.each(function () {
     var obj = $(this);
     let text = obj.text();
@@ -147,6 +168,7 @@ const updateSuspects = (msg, filters) => (list) =>
 
       try {
         obj.html(text.replace(item, msg));
+        app.IncrementCounter();
       } catch (e) {}
     });
   });
