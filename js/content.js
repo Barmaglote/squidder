@@ -1,8 +1,7 @@
 function App() {
   this.body = $("body");
   this.newMsg = "Иноагенты - наши друзья";
-  this.cutContainer = ".please-delete-this-banner";
-  this.customClass = "rkn-please-delete";
+  this.customClass = ".please-delete-this-banner";
   this.originBlockType = "full"; // full | part
   this.newBlockType = "part"; // full | part
   this.inoagents = this.GetAgents();
@@ -31,21 +30,25 @@ function App() {
 
 App.prototype.CutContainer = function () {
   var self = this;
-  $(this.cutContainer).each(function () {
+  var cutted = 0;
+  $(this.customClass).each(function () {
     var obj = $(this);
     obj.html(getNewMsg(self.newBlockType, self.freedomMsg));
+    cutted++;
   });
+
+  return cutted;
 };
 
 App.prototype.ClearByList = function () {
   var self = this;
 
-  var isApplied = false;
-
   // Custom approach
   if (this.inoagents != null) {
     return false;
   }
+
+  let cleared = 0;
 
   this.inoagents
     .filter(function (item) {
@@ -55,16 +58,17 @@ App.prototype.ClearByList = function () {
       if (self.originBlockType == "full") {
         item.selectorsFull.forEach((elem) => {
           self.body.find(elem).remove();
+          cleared++;
         });
       } else {
         item.selectorsPartial.forEach((elem) => {
           self.HideRKNBar(self.body.find(elem));
+          cleared++;
         });
       }
-      isApplied = true;
     });
 
-  return isApplied;
+  return cleared;
 };
 
 App.prototype.ClearByKeyword = function (keyword) {
@@ -74,7 +78,8 @@ App.prototype.ClearByKeyword = function (keyword) {
     return;
   }
 
-  updateSuspects(getNewMsg(this.newBlockType, this.freedomMsg), this.filters.slice())(suspicious, this);
+  let founded = updateSuspects(getNewMsg(this.newBlockType, this.freedomMsg), this.filters.slice())(suspicious);
+  return founded;
 };
 
 App.prototype.GetAgents = function () {
@@ -106,25 +111,17 @@ App.prototype.SetHandlers = function () {
     });
 };
 
-App.prototype.IncrementCounter = async function() {
-  await (new Promise((resolve, reject) => {
-    chrome.storage.local.get("squidder", async function(result){
-      let current = result.squidder?.total || 0;
-      alert(current);
-      resolve(() => {
-        new Promise((resolve, reject) => { 
-          chrome.storage.local.set({ "squidder": {"total": ++current} }, function(){
-            alert("Zhdite menja, urody!");
-            resolve();
-          });
-        });
-      });
-    });
-  }));
+App.prototype.IncrementCounter = function (founded) {
+  let self = this;
+  chrome.storage.local.get("squidder", async function (result) {
+    let current = result.squidder?.total || 0;
+    self.UpdateStorage({ total: current + founded });
+  });
+};
 
-  alert("Counted");
-  return;
-}
+App.prototype.UpdateStorage = function (newSquidder) {
+  chrome.storage.local.set({ squidder: newSquidder }, function () {});
+};
 
 $(document).ready(function () {
   var app = app || new App();
@@ -137,12 +134,15 @@ $(document).ready(function () {
 });
 
 const processPage = (app) => {
-  app.CutContainer();
-  app.ClearByList();
+  let founded = 0;
+  founded += app.CutContainer();
+  founded += app.ClearByList();
   app.templates.forEach((item) => {
-    app.ClearByKeyword(item);
+    founded += app.ClearByKeyword(item) || 0;
   });
   app.SetHandlers();
+
+  app.IncrementCounter(founded);
 };
 
 const matchToPattern = (text) => (item) => item.test(text);
@@ -157,20 +157,25 @@ const getSuspects = (list, filters) =>
     return isSuspect(filters, text);
   });
 
-const updateSuspects = (msg, filters) => (list, app) =>
+const updateSuspects = (msg, filters) => (list) => {
+  let founded = 0;
+
   list.each(function () {
     var obj = $(this);
     let text = obj.text();
-    filters.forEach((item) => {
+    filters.forEach(async (item) => {
       if (!matchToPattern(text)(item)) {
         return;
       }
 
       try {
         obj.html(text.replace(item, msg));
-        app.IncrementCounter();
+        founded++;
       } catch (e) {}
     });
   });
+
+  return founded;
+};
 
 const getNewMsg = (newBlockType, freedomMsg) => (newBlockType == "full" ? "" : freedomMsg);

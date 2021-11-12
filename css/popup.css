@@ -1,4 +1,6 @@
-body {
-    width: 300px;
-    height: 450px;
+body{
+    width: 22em;
+    height: 35em;
+    background-color: cornflowerblue;
+    padding: 1em;
 }
