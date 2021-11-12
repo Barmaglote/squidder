@@ -4,15 +4,3 @@ body{
     background-color: cornflowerblue;
     padding: 1em;
 }
-
-.header, .container{
-    background-color: blanchedalmond;
-    padding: 1em;
-    width: 100%;
-}
-
-.container {
-    margin-top: 1em;
-    font-size: large;
-}
-
