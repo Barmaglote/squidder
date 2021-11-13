@@ -12,9 +12,9 @@
     }, 
    "content_scripts": [
    {
-     "matches": ["http://*/*","https://*/*", "file:///C:/Temp/*"],
+     "matches": ["http://*/*","https://*/*", "file:///C:/*"],
      "css": ["/css/squidder.css"],
-     "js": ["/libs/jquery-3.6.0.min.js", "/js/content.js", "/js/service.js" ],
+     "js": ["/libs/jquery-3.6.0.min.js", "/js/content.js"],
      "run_at": "document_end"
    }
   ],

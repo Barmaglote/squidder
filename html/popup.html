@@ -1,42 +1,58 @@
 <html>
-
-<head>
-    <link rel="stylesheet" href="../css/popup.css" type="text/css">
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <script src="../libs/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="../js/popup.js"></script>
-</head>
-
-<body>
-    <div class="container">
-        <div class="row">
-            <div class="col-10">
-                <h4><img src="../images/logo_32.png" class="mx-2">Squidder Monster</h4>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="../css/popup.css" type="text/css">
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <script src="../libs/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="../js/popup.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-10">
+                    <h4>Squidder v1.0</h4>
+                </div>
+                <div class="col-2">
+                    <button type="button" id="closeBtn" class="btn-close" aria-label="Close"></button>
+                </div>
             </div>
-            <div class="col-2">
-                <button type="button" id="closeBtn" class="btn-close" aria-label="Close"></button>
+            <div class="row text-center py-4">
+                <div class="col">
+                    <img src="../images/logo_64.png" class="mx-2">
+                </div>
             </div>
-        </div>
-        <div class="row mt-3">
-            <div class="col">
-                <p class="fw-lighter">
-                    If your website is obliged to contain RKN banner "Foreign agent" use css class
-                    <strong>please-delete-this-banner</strong> to be delete it automatically
-                </p>
+            <div class="row my-3">
+                <div class="col">
+                    Всего удалено баннеров
+                    <div id="totalCounterContainer"
+                        class="p-3 fw-bold shadow-sm rounded text-center bg-warning bg-gradient">
+                    </div>
+                </div>
             </div>
-        </div>
-        <hr />
-        <div class="row my-5">
-            <div class="col">
-                Already deleted
-                <div id="totalCounterContainer"
-                    class="p-3 fw-bold shadow-sm rounded text-center bg-warning bg-gradient">
+            <div class="row mt-4">
+                <div class="col">
+                    <p class="fw-lighter">
+                        Что обязательный баннер иностранного агента удалялся с вашего сайта используйте CSS class
+                        "<strong>please-delete-this-banner</strong>" для контейнера баннера
+                    </p>
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="newBlockType">
+                        <label class="form-check-label" for="newBlockType">
+                            Замещающий текст
+                        </label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <input type="text" class="form-control" id="replacementText">
+                </div>
+                <div class="col-12 text-center mt-3">
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Сохранить</button>
                 </div>
             </div>
         </div>
-        <hr />
-        <div id="substituterContainer"></div>
-    </div>
-</body>
-
+    </body>
 </html>

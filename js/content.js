@@ -1,9 +1,21 @@
-function App() {
+function App(parameters) {
   this.body = $("body");
-  this.newMsg = "Иноагенты - наши друзья";
+  let self = this;
+  this.newMsg = parameters?.squidder?.replacementText || "Иноагенты - наши друзья";
+
+  self.freedomMsg = '<div class="squidder-btn-group" role="group" aria-label="Basic example">\
+        <button type="button" class="squidder-btn squidder-btn-primary">\
+          ' +
+    self.newMsg +
+    '</button>\
+        <button type="button" class="squidder-btn squidder-btn-primary squidder-close">\
+          <span aria-hidden="true">&times;</span>\
+        </button>\
+      </div>';
+      
   this.customClass = ".please-delete-this-banner";
   this.originBlockType = "full"; // full | part
-  this.newBlockType = "part"; // full | part
+  this.newBlockType = parameters?.squidder?.newBlockType || "part";
   this.inoagents = this.GetAgents();
   this.templates = ["агент", "АГЕНТ", "анное", "АННОЕ"];
   this.filters = [
@@ -15,24 +27,15 @@ function App() {
     /([Д|д]анное[\s\S]*?иностранного[\s\S]*?агента[\s\S]*?иностранного[\s\S]*?агента[\.]?)/giu,
     /([H|н]езарегистрированное[\s\S]*?объединение,[\s\S]*?признанное[\s\S]*?иноагентом)/giu,
   ];
-
-  this.freedomMsg =
-    '<div class="squidder-btn-group" role="group" aria-label="Basic example">\
-      <button type="button" class="squidder-btn squidder-btn-primary">\
-        ' +
-    this.newMsg +
-    '</button>\
-      <button type="button" class="squidder-btn squidder-btn-primary squidder-close">\
-        <span aria-hidden="true">&times;</span>\
-      </button>\
-    </div>';
 }
 
 App.prototype.CutContainer = function () {
   var self = this;
   var cutted = 0;
+
   $(this.customClass).each(function () {
     var obj = $(this);
+
     obj.html(getNewMsg(self.newBlockType, self.freedomMsg));
     cutted++;
   });
@@ -114,23 +117,29 @@ App.prototype.SetHandlers = function () {
 App.prototype.IncrementCounter = function (founded) {
   let self = this;
   chrome.storage.local.get("squidder", async function (result) {
+    let newSquidder = result.squidder;
     let current = result.squidder?.total || 0;
-    self.UpdateStorage({ total: current + founded });
+
+    newSquidder.total = (current + founded);
+    self.UpdateStorage({squidder : newSquidder});
   });
 };
 
 App.prototype.UpdateStorage = function (newSquidder) {
-  chrome.storage.local.set({ squidder: newSquidder }, function () {});
+  chrome.storage.local.set(newSquidder, function () {});
 };
 
 $(document).ready(function () {
-  var app = app || new App();
 
-  processPage(app);
+  chrome.storage.local.get("squidder", function (result) {
+    var app = app || new App(result);
 
-  document.body.onload = function () {
     processPage(app);
-  };
+
+    document.body.onload = function () {
+      processPage(app);
+    };
+  });
 });
 
 const processPage = (app) => {
