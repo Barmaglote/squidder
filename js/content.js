@@ -117,7 +117,7 @@ App.prototype.SetHandlers = function () {
 App.prototype.IncrementCounter = function (founded) {
   let self = this;
   chrome.storage.local.get("squidder", async function (result) {
-    let newSquidder = result.squidder;
+    let newSquidder = result.squidder || {};
     let current = result.squidder?.total || 0;
 
     newSquidder.total = (current + founded);
