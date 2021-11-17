@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Squidder",
   "description": "Удаление плашки Роскомнадзора об иностранных агентах.", 
-  "version": "1.0.0",
+  "version": "1.0.1",
      "icons": {
             "16": "images/logo_16.png",
             "32": "images/logo_32.png",
